@@ -3,37 +3,33 @@ import { MapPin, Phone, Instagram, Menu, X, Leaf, Coffee, Star, Sparkles, Loader
 
 // --- FIREBASE SETUP ---
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
-
-// Safely initialize Firebase only if config is provided by the environment
-const isFirebaseConfigured = typeof __firebase_config !== 'undefined' && __firebase_config;
-const firebaseConfig = isFirebaseConfigured ? JSON.parse(__firebase_config) : null;
+import firebaseConfig from '../firebase-applet-config.json';
 
 let app, auth, db;
-if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } catch (e) {
-    console.error("Firebase initialization error:", e);
-  }
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+} catch (e) {
+  console.error("Firebase initialization error:", e);
 }
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+const appId = 'default-app-id';
 
 // --- DỮ LIỆU MẶC ĐỊNH ---
 const defaultMenuItems = [
-  { id: "1", name: 'Matcha Cold Whisk', price: 35000, image: '/HiAn_Matcha Cold whish.jpg', category: 'Matcha', isBest: true, description: 'Trà xanh nguyên bản, đánh bọt thủ công theo phong cách Nhật Bản.', discount: 0 },
-  { id: "2", name: 'Coco Matcha Cream', price: 35000, image: '/HiAn_Coco Matcha Cream.jpg', category: 'Matcha', isBest: true, description: 'Sự kết hợp hoàn hảo giữa matcha thanh mát và lớp kem dừa béo ngậy.', discount: 0 },
-  { id: "3", name: 'Matcha Kem Muối', price: 35000, image: '/HiAn_Matcha Kem Muối.jpg', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất phủ một lớp kem muối mặn ngọt cực cuốn.', discount: 0 },
-  { id: "4", name: 'Sữa Dừa Matcha Cream', price: 35000, image: '/Hian_Sữa Dừa Matcha Cream.jpg', category: 'Matcha', isBest: true, description: 'Sữa dừa thơm lừng hòa quyện cùng lớp kem matcha đặc biệt.', discount: 10 },
-  { id: "5", name: 'Matcha Latte', price: 35000, image: '/HiAn_MatchaLatte.jpg', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất kết hợp cùng sữa tươi thanh trùng mềm mịn.', discount: 0 },
-  { id: "6", name: 'Sữa Dừa Sương Sáo', price: 35000, image: '/HiAn_Sữa Dừa Sương Sáo.jpg', category: 'Matcha', isBest: false, description: 'Sữa dừa béo ngậy kết hợp sương sáo thanh mát giải nhiệt.', discount: 0 },
-  { id: "7", name: 'Bạc Xỉu Muối', price: 29000, image: '/Bạc Xỉu Muối.jpg', category: 'Coffee', isBest: false, description: 'Bạc xỉu truyền thống phá cách với chút kem muối béo mặn.', discount: 0 },
-  { id: "8", name: 'Cà Đậu Phộng', price: 25000, image: '/Hian_Cà Đậu Phộng.jpg', category: 'Coffee', isBest: false, description: 'Cà phê rang xay đậm vị kết hợp vị bùi béo của bơ đậu phộng.', discount: 0 },
-  { id: "9", name: 'Nâu Lắc', price: 20000, image: '/HiAn_Cà Nâu.jpg', category: 'Coffee', isBest: false, description: 'Cà phê nâu lắc đá mát lạnh, giúp bạn tỉnh táo tức thì.', discount: 0 },
-  { id: "10", name: 'Cà Muối', price: 25000, image: '/Bạc Xỉu Muối.jpg', category: 'Coffee', isBest: false, description: 'Cà phê đen nguyên bản phủ lớp kem muối đặc trưng của quán.', discount: 0 },
+  { id: "1", name: 'Matcha Latte', price: 30000, image: '/HiAn_MatchaLatte.png', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất kết hợp cùng sữa tươi thanh trùng mềm mịn.', discount: 0 },
+  { id: "2", name: 'Matcha Cold Whisk', price: 35000, image: '/Matcha_Cold_whish.png', category: 'Matcha', isBest: true, description: 'Trà xanh nguyên bản đậm vị, đánh bọt thủ công chuẩn phong cách Nhật Bản.', discount: 0 },
+  { id: "3", name: 'Matcha Kem Muối', price: 35000, image: '/Matcha_Kem_Muối.png', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất đậm đà phủ một lớp kem muối mặn ngọt bồng bềnh.', discount: 0 },
+  { id: "4", name: 'Coco Matcha Cream', price: 35000, image: '/Coco_Matcha_Cream.png', category: 'Matcha', isBest: true, description: 'Sự kết hợp hoàn hảo giữa matcha thanh mát và lớp kem dừa béo ngậy.', discount: 0 },
+  { id: "5", name: 'Sữa Dừa Matcha Cream', price: 35000, image: '/Sua_Dua_Matcha_Cream.png', category: 'Matcha', isBest: true, description: 'Sữa dừa thơm lừng hòa quyện cùng lớp kem matcha đặc biệt.', discount: 0 },
+  { id: "6", name: 'Sữa Dừa Sương Sáo', price: 25000, image: '/Sua_Dua_Suong_Sao.png', category: 'Matcha', isBest: true, description: 'Sữa dừa béo ngậy kết hợp sương sáo thanh mát dai giòn.', discount: 0 },
+  { id: "7", name: 'Nâu Lắc', price: 20000, image: '/Ca_Nau.png', category: 'Coffee', isBest: false, description: 'Cà phê nâu lắc đá mát lạnh, đậm đà hương vị truyền thống.', discount: 0 },
+  { id: "8", name: 'Xỉu Muối', price: 29000, image: '/Bac_xiu_muoi.png', category: 'Coffee', isBest: false, description: 'Bạc xỉu truyền thống phá cách với chút kem muối béo mặn.', discount: 0 },
+  { id: "9", name: 'Cà Muối', price: 25000, image: '/Ca_Muoi.png', category: 'Coffee', isBest: false, description: 'Cà phê đen nguyên bản mạnh mẽ phủ lớp kem muối đặc trưng.', discount: 0 },
+  { id: "10", name: 'Cà Đậu Phộng', price: 25000, image: '/Ca_Dau_Phong.jpg', category: 'Coffee', isBest: false, description: 'Cà phê rang xay đậm vị kết hợp vị bùi béo đặc trưng của bơ đậu phộng.', discount: 0 },
 ];
 
 const toppings = [
@@ -339,41 +335,35 @@ export default function App() {
       setUser({ uid: 'local-dev' });
       return;
     }
-    const initAuth = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) { console.error("Auth error:", err); }
-    };
-    initAuth();
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
   }, []);
 
   // 2. Tải & Đồng bộ Dữ liệu Thực đơn
   useEffect(() => {
-    if (!user) return;
     if (!db) {
-      // Fallback to default menu if Firebase is not configured
       setMenuList(defaultMenuItems);
       return;
     }
     const menuRef = collection(db, 'artifacts', appId, 'public', 'data', 'menu');
+
     const unsubscribe = onSnapshot(menuRef, (snapshot) => {
-      if (snapshot.empty && !hasSeededRef.current) {
-        hasSeededRef.current = true;
-        defaultMenuItems.forEach(item => {
-          setDoc(doc(menuRef, item.id), item).catch(console.error);
-        });
+      if (snapshot.empty) {
+        // Seed default menu if empty
+        if (auth?.currentUser) {
+          defaultMenuItems.forEach(item => {
+            setDoc(doc(menuRef, item.id), item).catch(console.error);
+          });
+        } else {
+          setMenuList(defaultMenuItems);
+        }
       } else {
         const items = [];
         snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
         setMenuList(items.sort((a,b) => Number(a.id) - Number(b.id)));
       }
     }, console.error);
+    
     return () => unsubscribe();
   }, [user]);
 
@@ -464,6 +454,29 @@ export default function App() {
 
   // Switch to Admin View
   if (currentView === 'admin') {
+    if (!user) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
+          <div className="bg-white p-8 rounded-3xl shadow-lg max-w-md w-full text-center">
+            <ShieldCheck size={48} className="mx-auto text-[#5d821a] mb-4" />
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Đăng nhập Quản trị</h2>
+            <p className="text-slate-500 mb-6">Vui lòng đăng nhập để quản lý thực đơn.</p>
+            <button 
+              onClick={() => signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error)}
+              className="w-full py-3 bg-[#5d821a] text-white font-bold rounded-xl hover:bg-[#4a6815] transition-colors mb-3"
+            >
+              Đăng nhập với Google
+            </button>
+            <button 
+              onClick={() => setCurrentView('home')}
+              className="w-full py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-xl transition-colors"
+            >
+              Quay lại trang chủ
+            </button>
+          </div>
+        </div>
+      );
+    }
     return <AdminPanel menuList={menuList} onSave={handleSaveItem} onDelete={handleDeleteItem} onBack={() => setCurrentView('home')} onReset={handleResetDefault} />;
   }
 
@@ -532,7 +545,7 @@ export default function App() {
 
             <div className="relative mx-auto w-full max-w-md lg:max-w-full group">
               <div className="relative rounded-[3rem] overflow-hidden border-8 border-white shadow-2xl bg-[#f4ead1] aspect-[4/5] flex items-center justify-center">
-                <img src="HiAn_Matcha Cold whish.jpg" alt="HiAn Matcha Cold Whisk" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src="/Matcha_Cold_whish.png" alt="HiAn Matcha Cold Whisk" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-4 animate-bounce" style={{ animationDuration: '3s' }}>
                 <div className="bg-[#f4ead1] p-3 rounded-full text-[#5d821a]"><Star fill="currentColor" size={24} /></div>

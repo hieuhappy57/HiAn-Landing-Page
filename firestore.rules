@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      // In a real app, this should check a secure role claim or an admin collection.
+      // For this prototype, we allow any authenticated user to act as admin 
+      // since the app uses anonymous auth for everyone.
+      return isAuthenticated();
+    }
+
+    function isValidMenuItem(data) {
+      return data.keys().hasAll(['id', 'name', 'price', 'image', 'category', 'isBest', 'description', 'discount']) &&
+             data.id is string &&
+             data.name is string && data.name.size() <= 100 &&
+             data.price is number && data.price >= 0 &&
+             data.image is string && data.image.size() <= 1048576 && // 1MB max for base64
+             data.category is string && data.category.size() <= 50 &&
+             data.isBest is bool &&
+             data.description is string && data.description.size() <= 1000 &&
+             data.discount is number && data.discount >= 0 && data.discount <= 100;
+    }
+
+    match /artifacts/{appId}/public/data/menu/{itemId} {
+      // Anyone can read the menu
+      allow read: if true;
+      
+      // Only admins can create/update/delete menu items
+      allow create: if isAdmin() && isValidMenuItem(request.resource.data);
+      allow update: if isAdmin() && isValidMenuItem(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

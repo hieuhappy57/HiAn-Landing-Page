@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A menu item in the coffee shop",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "image": { "type": "string" },
+        "category": { "type": "string" },
+        "isBest": { "type": "boolean" },
+        "description": { "type": "string" },
+        "discount": { "type": "number" }
+      },
+      "required": ["id", "name", "price", "image", "category", "isBest", "description", "discount"]
+    }
+  },
+  "firestore": {
+    "/artifacts/{appId}/public/data/menu/{itemId}": {
+      "schema": { "$ref": "#/entities/MenuItem" },
+      "description": "Public menu items"
+    }
+  }
+}
