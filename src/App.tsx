@@ -89,16 +89,16 @@ const BlobShape2 = ({ className }) => (
   <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className={className}><path fill="currentColor" d="M51.8,-70.5C65.5,-61.2,73.8,-43.8,79.5,-25.6C85.2,-7.4,88.3,11.6,81.3,27.1C74.3,42.6,57.2,54.6,39.9,64.3C22.6,74,5.1,81.4,-11.7,78.9C-28.5,76.4,-44.6,64,-58.3,50C-72,36,-83.3,20.4,-86.3,3.4C-89.3,-13.6,-84.1,-32,-72.6,-46.1C-61.1,-60.2,-43.3,-70,-25.7,-74.6C-8.1,-79.2,9.3,-78.6,26.5,-73.9C43.7,-69.2,58.3,-60.3,51.8,-70.5Z" transform="translate(100 100)" /></svg>
 );
 
-const FallbackImage = ({ src, alt, fallbackText }) => {
+const FallbackImage = ({ src, alt, fallbackText, className = "w-full h-64 rounded-t-[2rem]" }) => {
   const [imgError, setImgError] = useState(false);
   return (
-    <div className="relative w-full h-64 bg-[#f4ead1]/50 rounded-t-[2rem] overflow-hidden flex items-center justify-center">
+    <div className={`relative bg-[#f4ead1]/50 overflow-hidden flex items-center justify-center flex-shrink-0 ${className}`}>
       {!imgError && src ? (
         <img src={src} alt={alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={() => setImgError(true)} />
       ) : (
-        <div className="text-center p-6 opacity-50 text-[#5d821a]">
-          <Coffee size={48} className="mx-auto mb-2" />
-          <p className="text-sm font-medium">{fallbackText || 'Chưa có hình ảnh'}</p>
+        <div className="text-center p-2 opacity-50 text-[#5d821a]">
+          <Coffee size={32} className="mx-auto mb-1" />
+          <p className="text-[10px] font-medium px-1 leading-tight">{fallbackText || 'Chưa có hình ảnh'}</p>
         </div>
       )}
     </div>
@@ -620,38 +620,40 @@ export default function App() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
             {filteredMenu.map((item) => {
               const finalPrice = item.price * (1 - (item.discount || 0) / 100);
               return (
-                <div key={item.id} className="bg-[#fcfaf5] rounded-[2rem] p-3 shadow-sm hover:shadow-xl transition-all border border-[#f4ead1] group relative flex flex-col">
+                <div key={item.id} className="bg-[#fcfaf5] rounded-2xl sm:rounded-[2rem] p-3 shadow-sm hover:shadow-xl transition-all border border-[#f4ead1] group relative flex flex-row sm:flex-col items-center sm:items-stretch gap-4 sm:gap-0">
                   
                   {item.isBest && (
-                    <div className="absolute top-6 -left-2 z-20">
-                      <div className="bg-[#ffd966] text-[#8c6b00] text-xs font-black px-3 py-1 rounded-r-lg shadow-sm flex items-center gap-1"><Star size={12} fill="currentColor" /> BEST</div>
+                    <div className="absolute top-0 left-0 sm:top-6 sm:-left-2 z-20">
+                      <div className="bg-[#ffd966] text-[#8c6b00] text-[10px] sm:text-xs font-black px-2 py-1 sm:px-3 sm:py-1 rounded-tl-2xl rounded-br-lg sm:rounded-none sm:rounded-r-lg shadow-sm flex items-center gap-1"><Star size={10} fill="currentColor" className="sm:w-3 sm:h-3" /> BEST</div>
                     </div>
                   )}
 
                   {item.discount > 0 && (
-                    <div className="absolute top-6 right-0 z-20">
-                      <div className="bg-red-500 text-white text-xs font-black px-3 py-1 rounded-l-lg shadow-md border border-red-400">-{item.discount}%</div>
+                    <div className="absolute top-0 right-0 sm:top-6 sm:right-0 z-20">
+                      <div className="bg-red-500 text-white text-[10px] sm:text-xs font-black px-2 py-1 sm:px-3 sm:py-1 rounded-tr-2xl rounded-bl-lg sm:rounded-none sm:rounded-l-lg shadow-md border border-red-400">-{item.discount}%</div>
                     </div>
                   )}
 
-                  <FallbackImage src={item.image} alt={item.name} fallbackText={item.name} />
+                  <FallbackImage src={item.image} alt={item.name} fallbackText={item.name} className="w-24 h-24 sm:w-full sm:h-64 rounded-xl sm:rounded-t-[2rem] sm:rounded-b-none" />
                   
-                  <div className="p-5 pt-6 flex-1 flex flex-col">
-                    <div className="flex-1 mb-2">
-                      <h3 className="font-bold text-lg text-slate-800 group-hover:text-[#5d821a] transition-colors line-clamp-2">{item.name}</h3>
-                      {item.description && <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">{item.description}</p>}
+                  <div className="flex-1 flex flex-col py-1 sm:p-5 sm:pt-6">
+                    <div className="flex-1 mb-1 sm:mb-2">
+                      <h3 className="font-bold text-base sm:text-lg text-slate-800 group-hover:text-[#5d821a] transition-colors line-clamp-2 leading-tight">{item.name}</h3>
+                      {item.description && <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2 line-clamp-2 leading-relaxed">{item.description}</p>}
                     </div>
                     
-                    <div className="flex justify-between items-end mt-4 pt-4 border-t border-[#f4ead1]/50">
+                    <div className="flex justify-between items-end mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-[#f4ead1]/50">
                       <div>
-                        {item.discount > 0 && <span className="text-slate-400 line-through text-sm mr-2 block -mb-1">{formatPrice(item.price)}</span>}
-                        <span className="text-[#5d821a] font-extrabold text-2xl">{formatPrice(finalPrice)}</span>
+                        {item.discount > 0 && <span className="text-slate-400 line-through text-[10px] sm:text-sm mr-2 block -mb-1">{formatPrice(item.price)}</span>}
+                        <span className="text-[#5d821a] font-extrabold text-lg sm:text-2xl">{formatPrice(finalPrice)}</span>
                       </div>
-                      <button className="w-10 h-10 rounded-full bg-[#f4ead1] text-[#5d821a] flex items-center justify-center hover:bg-[#5d821a] hover:text-white transition-colors">+</button>
+                      <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#f4ead1] text-[#5d821a] flex items-center justify-center hover:bg-[#5d821a] hover:text-white transition-colors">
+                        <Plus size={16} className="sm:w-5 sm:h-5" />
+                      </button>
                     </div>
                   </div>
                 </div>
