@@ -24,16 +24,16 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
 // --- DỮ LIỆU MẶC ĐỊNH ---
 const defaultMenuItems = [
-  { id: "1", name: 'Matcha Cold Whisk', price: 35000, image: 'HiAn_Matcha Cold whish.jpg', category: 'Matcha', isBest: true, description: 'Trà xanh nguyên bản, đánh bọt thủ công theo phong cách Nhật Bản.', discount: 0 },
-  { id: "2", name: 'Coco Matcha Cream', price: 35000, image: 'HiAn_Coco Matcha Cream.jpg', category: 'Matcha', isBest: true, description: 'Sự kết hợp hoàn hảo giữa matcha thanh mát và lớp kem dừa béo ngậy.', discount: 0 },
-  { id: "3", name: 'Matcha Kem Muối', price: 35000, image: 'HiAn_Matcha Kem Muối.jpg', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất phủ một lớp kem muối mặn ngọt cực cuốn.', discount: 0 },
-  { id: "4", name: 'Sữa Dừa Matcha Cream', price: 35000, image: 'Hian_Sữa Dừa Matcha Cream.jpg', category: 'Matcha', isBest: true, description: 'Sữa dừa thơm lừng hòa quyện cùng lớp kem matcha đặc biệt.', discount: 10 },
-  { id: "5", name: 'Matcha Latte', price: 35000, image: 'HiAn_MatchaLatte.jpg', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất kết hợp cùng sữa tươi thanh trùng mềm mịn.', discount: 0 },
-  { id: "6", name: 'Sữa Dừa Sương Sáo', price: 35000, image: 'HiAn_Sữa Dừa Sương Sáo.jpg', category: 'Matcha', isBest: false, description: 'Sữa dừa béo ngậy kết hợp sương sáo thanh mát giải nhiệt.', discount: 0 },
-  { id: "7", name: 'Bạc Xỉu Muối', price: 29000, image: 'Bạc Xỉu Muối.jpg', category: 'Coffee', isBest: false, description: 'Bạc xỉu truyền thống phá cách với chút kem muối béo mặn.', discount: 0 },
-  { id: "8", name: 'Cà Đậu Phộng', price: 25000, image: 'Hian_Cà Đậu Phộng.jpg', category: 'Coffee', isBest: false, description: 'Cà phê rang xay đậm vị kết hợp vị bùi béo của bơ đậu phộng.', discount: 0 },
-  { id: "9", name: 'Nâu Lắc', price: 20000, image: 'HiAn_Cà Nâu.jpg', category: 'Coffee', isBest: false, description: 'Cà phê nâu lắc đá mát lạnh, giúp bạn tỉnh táo tức thì.', discount: 0 },
-  { id: "10", name: 'Cà Muối', price: 25000, image: 'Bạc Xỉu Muối.jpg', category: 'Coffee', isBest: false, description: 'Cà phê đen nguyên bản phủ lớp kem muối đặc trưng của quán.', discount: 0 },
+  { id: "1", name: 'Matcha Cold Whisk', price: 35000, image: '/HiAn_Matcha Cold whish.jpg', category: 'Matcha', isBest: true, description: 'Trà xanh nguyên bản, đánh bọt thủ công theo phong cách Nhật Bản.', discount: 0 },
+  { id: "2", name: 'Coco Matcha Cream', price: 35000, image: '/HiAn_Coco Matcha Cream.jpg', category: 'Matcha', isBest: true, description: 'Sự kết hợp hoàn hảo giữa matcha thanh mát và lớp kem dừa béo ngậy.', discount: 0 },
+  { id: "3", name: 'Matcha Kem Muối', price: 35000, image: '/HiAn_Matcha Kem Muối.jpg', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất phủ một lớp kem muối mặn ngọt cực cuốn.', discount: 0 },
+  { id: "4", name: 'Sữa Dừa Matcha Cream', price: 35000, image: '/Hian_Sữa Dừa Matcha Cream.jpg', category: 'Matcha', isBest: true, description: 'Sữa dừa thơm lừng hòa quyện cùng lớp kem matcha đặc biệt.', discount: 10 },
+  { id: "5", name: 'Matcha Latte', price: 35000, image: '/HiAn_MatchaLatte.jpg', category: 'Matcha', isBest: false, description: 'Matcha nguyên chất kết hợp cùng sữa tươi thanh trùng mềm mịn.', discount: 0 },
+  { id: "6", name: 'Sữa Dừa Sương Sáo', price: 35000, image: '/HiAn_Sữa Dừa Sương Sáo.jpg', category: 'Matcha', isBest: false, description: 'Sữa dừa béo ngậy kết hợp sương sáo thanh mát giải nhiệt.', discount: 0 },
+  { id: "7", name: 'Bạc Xỉu Muối', price: 29000, image: '/Bạc Xỉu Muối.jpg', category: 'Coffee', isBest: false, description: 'Bạc xỉu truyền thống phá cách với chút kem muối béo mặn.', discount: 0 },
+  { id: "8", name: 'Cà Đậu Phộng', price: 25000, image: '/Hian_Cà Đậu Phộng.jpg', category: 'Coffee', isBest: false, description: 'Cà phê rang xay đậm vị kết hợp vị bùi béo của bơ đậu phộng.', discount: 0 },
+  { id: "9", name: 'Nâu Lắc', price: 20000, image: '/HiAn_Cà Nâu.jpg', category: 'Coffee', isBest: false, description: 'Cà phê nâu lắc đá mát lạnh, giúp bạn tỉnh táo tức thì.', discount: 0 },
+  { id: "10", name: 'Cà Muối', price: 25000, image: '/Bạc Xỉu Muối.jpg', category: 'Coffee', isBest: false, description: 'Cà phê đen nguyên bản phủ lớp kem muối đặc trưng của quán.', discount: 0 },
 ];
 
 const toppings = [
