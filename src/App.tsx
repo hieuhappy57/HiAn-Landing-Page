@@ -51,14 +51,14 @@ const BrandLogo = ({ isFooter = false }) => {
     );
   }
   const containerClass = isFooter 
-    ? "w-40 h-20 rounded-2xl shadow-xl border-4 border-[#c3d9a1]/20" 
-    : "w-28 h-12 rounded-xl shadow-sm border border-[#c3d9a1]/50";
+    ? "w-24 h-24 rounded-2xl shadow-xl border-4 border-[#c3d9a1]/20 bg-white" 
+    : "w-14 h-14 rounded-xl shadow-sm border border-[#c3d9a1]/50 bg-white";
   return (
-    <div className={`overflow-hidden bg-[#5d821a] flex items-center justify-center ${containerClass}`}>
+    <div className={`overflow-hidden flex items-center justify-center ${containerClass}`}>
       <img 
         src="/logo.png" 
         alt="HiAn Logo" 
-        className="w-full h-full object-cover object-center scale-[1.8]" 
+        className="w-full h-full object-contain p-1" 
         onError={() => setImgError(true)}
       />
     </div>
