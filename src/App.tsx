@@ -56,7 +56,7 @@ const BrandLogo = ({ isFooter = false }) => {
   return (
     <div className={`overflow-hidden bg-[#5d821a] flex items-center justify-center ${containerClass}`}>
       <img 
-        src="I_li_mu_xanh_sang_m_mu_5d821a_2k_delpmaspu.jpg" 
+        src="/logo.png" 
         alt="HiAn Logo" 
         className="w-full h-full object-cover object-center scale-[1.8]" 
         onError={() => setImgError(true)}
