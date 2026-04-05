@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Phone, Instagram, Menu, X, Leaf, Coffee, Star, Sparkles, Loader2, Send, Settings, Save, Trash2, Plus, ArrowLeft, ShieldCheck, Edit, Upload, RefreshCw } from 'lucide-react';
+import { MapPin, Phone, Instagram, Menu, X, Leaf, Coffee, Star, Sparkles, Loader2, Send, Settings, Save, Trash2, Plus, ArrowLeft, ShieldCheck, Edit, Upload, RefreshCw, ShoppingCart, Minus } from 'lucide-react';
 
 // --- FIREBASE SETUP ---
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -322,6 +322,66 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
 
+  // Cart State
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '', note: '' });
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
+  const addToCart = (item) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
+    setIsCartOpen(true);
+  };
+
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQuantity = item.quantity + delta;
+        return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+      }
+      return item;
+    }).filter(item => item.quantity > 0));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => {
+    const finalPrice = item.price * (1 - (item.discount || 0) / 100);
+    return sum + finalPrice * item.quantity;
+  }, 0);
+
+  const handleCheckout = async (e) => {
+    e.preventDefault();
+    if (cart.length === 0) return;
+    
+    if (db) {
+      try {
+        const orderRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'));
+        await setDoc(orderRef, {
+          items: cart,
+          total: cartTotal,
+          customer: customerInfo,
+          createdAt: new Date().toISOString(),
+          status: 'pending'
+        });
+      } catch (err) {
+        console.error("Lỗi khi lưu đơn hàng:", err);
+      }
+    }
+    
+    setCart([]);
+    setCustomerInfo({ name: '', phone: '', address: '', note: '' });
+    setOrderSuccess(true);
+    setTimeout(() => {
+      setOrderSuccess(false);
+      setIsCartOpen(false);
+    }, 3000);
+  };
+
   // AI State
   const [mood, setMood] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -455,18 +515,62 @@ export default function App() {
   // Switch to Admin View
   if (currentView === 'admin') {
     if (!user) {
+      const [adminId, setAdminId] = useState('');
+      const [adminPass, setAdminPass] = useState('');
+      const [loginError, setLoginError] = useState('');
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (adminId === 'HianMatcha2026@' && adminPass === 'HianMatcha2026@123') {
+          if (auth) {
+            signInAnonymously(auth).catch(console.error);
+          } else {
+            setUser({ uid: 'local-admin' });
+          }
+        } else {
+          setLoginError('Sai ID hoặc mật khẩu!');
+        }
+      };
+
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
           <div className="bg-white p-8 rounded-3xl shadow-lg max-w-md w-full text-center">
             <ShieldCheck size={48} className="mx-auto text-[#5d821a] mb-4" />
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Đăng nhập Quản trị</h2>
             <p className="text-slate-500 mb-6">Vui lòng đăng nhập để quản lý thực đơn.</p>
-            <button 
-              onClick={() => signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error)}
-              className="w-full py-3 bg-[#5d821a] text-white font-bold rounded-xl hover:bg-[#4a6815] transition-colors mb-3"
-            >
-              Đăng nhập với Google
-            </button>
+            
+            <form onSubmit={handleLogin} className="space-y-4 mb-6 text-left">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">ID Đăng nhập</label>
+                <input 
+                  type="text" 
+                  value={adminId}
+                  onChange={(e) => setAdminId(e.target.value)}
+                  className="w-full rounded-xl border-slate-300 shadow-sm p-3 border focus:border-[#5d821a] outline-none bg-slate-50 focus:bg-white" 
+                  placeholder="Nhập ID..."
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Mật khẩu</label>
+                <input 
+                  type="password" 
+                  value={adminPass}
+                  onChange={(e) => setAdminPass(e.target.value)}
+                  className="w-full rounded-xl border-slate-300 shadow-sm p-3 border focus:border-[#5d821a] outline-none bg-slate-50 focus:bg-white" 
+                  placeholder="Nhập mật khẩu..."
+                  required
+                />
+              </div>
+              {loginError && <p className="text-red-500 text-sm font-medium">{loginError}</p>}
+              <button 
+                type="submit"
+                className="w-full py-3 bg-[#5d821a] text-white font-bold rounded-xl hover:bg-[#4a6815] transition-colors mt-2 shadow-md"
+              >
+                Đăng nhập
+              </button>
+            </form>
+
             <button 
               onClick={() => setCurrentView('home')}
               className="w-full py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-xl transition-colors"
@@ -500,8 +604,24 @@ export default function App() {
               <a href="#location" className="px-5 py-2.5 rounded-full bg-[#5d821a] text-white font-medium hover:bg-[#4a6815] transition-colors shadow-sm">
                 Ghé Quán
               </a>
+              <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-[#5d821a] hover:bg-[#f4ead1] rounded-full transition-colors">
+                <ShoppingCart size={24} />
+                {cart.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
+                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                  </span>
+                )}
+              </button>
             </div>
-            <div className="md:hidden flex items-center">
+            <div className="md:hidden flex items-center gap-4">
+              <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-[#5d821a] hover:bg-[#f4ead1] rounded-full transition-colors">
+                <ShoppingCart size={24} />
+                {cart.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
+                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                  </span>
+                )}
+              </button>
               <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-[#5d821a] hover:text-[#4a6815]">
                 {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
               </button>
@@ -651,7 +771,7 @@ export default function App() {
                         {item.discount > 0 && <span className="text-slate-400 line-through text-[10px] sm:text-sm mr-2 block -mb-1">{formatPrice(item.price)}</span>}
                         <span className="text-[#5d821a] font-extrabold text-lg sm:text-2xl">{formatPrice(finalPrice)}</span>
                       </div>
-                      <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#f4ead1] text-[#5d821a] flex items-center justify-center hover:bg-[#5d821a] hover:text-white transition-colors">
+                      <button onClick={() => addToCart(item)} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#f4ead1] text-[#5d821a] flex items-center justify-center hover:bg-[#5d821a] hover:text-white transition-colors">
                         <Plus size={16} className="sm:w-5 sm:h-5" />
                       </button>
                     </div>
@@ -748,6 +868,84 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* --- CART SIDEBAR --- */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-[100] flex justify-end">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-[#fcfaf5]">
+              <h2 className="text-2xl font-bold text-[#5d821a] flex items-center gap-2"><ShoppingCart /> Giỏ hàng của bạn</h2>
+              <button onClick={() => setIsCartOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={24}/></button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              {cart.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
+                  <ShoppingCart size={64} className="opacity-20" />
+                  <p>Giỏ hàng đang trống</p>
+                  <button onClick={() => setIsCartOpen(false)} className="px-6 py-2 bg-[#f4ead1] text-[#5d821a] rounded-full font-bold">Tiếp tục chọn món</button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Danh sách món */}
+                  <div className="space-y-4">
+                    {cart.map(item => (
+                      <div key={item.id} className="flex gap-4 items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-xl" />
+                        <div className="flex-1">
+                          <h4 className="font-bold text-slate-800 line-clamp-1">{item.name}</h4>
+                          <p className="text-[#5d821a] font-bold">{formatPrice(item.price * (1 - (item.discount || 0)/100))}</p>
+                        </div>
+                        <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-lg border border-slate-200">
+                          <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-red-500"><Minus size={16}/></button>
+                          <span className="font-bold w-4 text-center">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-[#5d821a]"><Plus size={16}/></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Form thông tin */}
+                  <div className="border-t border-slate-100 pt-6 space-y-4">
+                    <h3 className="font-bold text-slate-800 text-lg">Thông tin giao hàng</h3>
+                    <input type="text" placeholder="Tên của bạn" required value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} className="w-full p-3 rounded-xl border border-slate-200 focus:border-[#5d821a] outline-none" />
+                    <input type="tel" placeholder="Số điện thoại" required value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} className="w-full p-3 rounded-xl border border-slate-200 focus:border-[#5d821a] outline-none" />
+                    <input type="text" placeholder="Địa chỉ nhận hàng" required value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} className="w-full p-3 rounded-xl border border-slate-200 focus:border-[#5d821a] outline-none" />
+                    <textarea placeholder="Ghi chú (ít đá, nhiều ngọt...)" value={customerInfo.note} onChange={e => setCustomerInfo({...customerInfo, note: e.target.value})} className="w-full p-3 rounded-xl border border-slate-200 focus:border-[#5d821a] outline-none" rows="2"></textarea>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="p-6 bg-white border-t border-slate-100 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-slate-500 font-medium">Tổng cộng:</span>
+                  <span className="text-2xl font-extrabold text-[#5d821a]">{formatPrice(cartTotal)}</span>
+                </div>
+                <button onClick={handleCheckout} disabled={!customerInfo.name || !customerInfo.phone || !customerInfo.address} className="w-full py-4 bg-[#5d821a] text-white font-bold rounded-2xl hover:bg-[#4a6815] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+                  Đặt hàng ngay <Send size={18}/>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Thông báo đặt hàng thành công */}
+      {orderSuccess && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl animate-in zoom-in duration-300">
+            <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ShieldCheck size={40} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">Đặt hàng thành công!</h3>
+            <p className="text-slate-500 mb-6">HiAn đã nhận được đơn hàng của bạn. Chúng mình sẽ liên hệ sớm nhất để xác nhận nhé!</p>
+            <button onClick={() => setOrderSuccess(false)} className="w-full py-3 bg-[#f4ead1] text-[#5d821a] font-bold rounded-xl">Đóng</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

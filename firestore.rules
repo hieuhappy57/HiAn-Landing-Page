@@ -35,5 +35,12 @@ service cloud.firestore {
       allow update: if isAdmin() && isValidMenuItem(request.resource.data);
       allow delete: if isAdmin();
     }
+
+    match /artifacts/{appId}/public/data/orders/{orderId} {
+      // Anyone can create an order
+      allow create: if true;
+      // Only admins can read/update/delete orders
+      allow read, update, delete: if isAdmin();
+    }
   }
 }
