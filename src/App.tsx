@@ -388,6 +388,11 @@ export default function App() {
   const [aiSuggestion, setAiSuggestion] = useState(null);
   const [aiError, setAiError] = useState('');
 
+  // Admin Login State
+  const [adminId, setAdminId] = useState('');
+  const [adminPass, setAdminPass] = useState('');
+  const [loginError, setLoginError] = useState('');
+
   // 1. Khởi tạo & Lắng nghe Auth Firebase
   useEffect(() => {
     if (!auth) {
@@ -515,10 +520,6 @@ export default function App() {
   // Switch to Admin View
   if (currentView === 'admin') {
     if (!user) {
-      const [adminId, setAdminId] = useState('');
-      const [adminPass, setAdminPass] = useState('');
-      const [loginError, setLoginError] = useState('');
-
       const handleLogin = (e) => {
         e.preventDefault();
         if (adminId === 'HianMatcha2026@' && adminPass === 'HianMatcha2026@123') {
@@ -811,7 +812,7 @@ export default function App() {
               <p className="text-[#c3d9a1] text-lg mb-8 max-w-md">Matcha & Coco. <br/>A sip of joy for day.</p>
               
               <div className="space-y-4">
-                <a href="https://maps.google.com/?q=25+Hưng+Hoá+1,+Hải+Châu" target="_blank" rel="noreferrer" className="flex items-start gap-3 hover:text-[#c3d9a1] transition-colors group">
+                <a href="https://maps.app.goo.gl/ztCXhM6rM2PVVbPQA" target="_blank" rel="noreferrer" className="flex items-start gap-3 hover:text-[#c3d9a1] transition-colors group">
                   <div className="bg-white/10 p-3 rounded-xl group-hover:bg-white/20 transition-colors"><MapPin size={24} /></div>
                   <div className="pt-1">
                     <p className="text-sm text-[#c3d9a1]">Địa chỉ của chúng mình</p>
@@ -848,9 +849,9 @@ export default function App() {
                 ></iframe>
                 
                 {/* Sticker badge */}
-                <div className="absolute top-4 right-4 bg-white text-[#5d821a] px-3 py-2 rounded-xl shadow-lg flex items-center gap-2 font-bold animate-pulse">
-                  <Coffee size={18} /> HiAn ở đây nè!
-                </div>
+                <a href="https://maps.app.goo.gl/ztCXhM6rM2PVVbPQA" target="_blank" rel="noreferrer" className="absolute top-4 right-4 bg-white text-[#5d821a] px-3 py-2 rounded-xl shadow-lg flex items-center gap-2 font-bold hover:bg-[#f4ead1] transition-colors cursor-pointer animate-pulse">
+                  <MapPin size={18} /> Xem trên Google Maps
+                </a>
               </div>
             </div>
           </div>
