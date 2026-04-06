@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Phone, Instagram, Menu, X, Leaf, Coffee, Star, Sparkles, Loader2, Send, Settings, Save, Trash2, Plus, ArrowLeft, ShieldCheck, Edit, Upload, RefreshCw, ShoppingCart, Minus } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 // --- FIREBASE SETUP ---
 import { initializeApp } from 'firebase/app';
@@ -327,21 +328,52 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '', note: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const addToCart = (item) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
-      }
-      return [...prev, { ...item, quantity: 1 }];
-    });
-    setIsCartOpen(true);
+  // Item Selection Modal State
+  const [selectedItemForCart, setSelectedItemForCart] = useState(null);
+  const [tempQuantity, setTempQuantity] = useState(1);
+  const [tempToppings, setTempToppings] = useState([]);
+
+  const openItemModal = (item) => {
+    setSelectedItemForCart(item);
+    setTempQuantity(1);
+    setTempToppings([]);
   };
 
-  const updateQuantity = (id, delta) => {
+  const toggleTempTopping = (toppingName) => {
+    setTempToppings(prev => 
+      prev.includes(toppingName) 
+        ? prev.filter(t => t !== toppingName)
+        : [...prev, toppingName]
+    );
+  };
+
+  const confirmAddToCart = () => {
+    if (!selectedItemForCart) return;
+
+    const cartItemId = `${selectedItemForCart.id}-${tempToppings.sort().join('-')}`;
+    
+    setCart(prev => {
+      const existing = prev.find(i => i.cartItemId === cartItemId);
+      if (existing) {
+        return prev.map(i => i.cartItemId === cartItemId ? { ...i, quantity: i.quantity + tempQuantity } : i);
+      }
+      return [...prev, { 
+        ...selectedItemForCart, 
+        cartItemId, 
+        quantity: tempQuantity, 
+        selectedToppings: tempToppings 
+      }];
+    });
+    
+    setSelectedItemForCart(null);
+    // Không mở giỏ hàng tự động nữa
+  };
+
+  const updateQuantity = (cartItemId, delta) => {
     setCart(prev => prev.map(item => {
-      if (item.id === id) {
+      if (item.cartItemId === cartItemId) {
         const newQuantity = item.quantity + delta;
         return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
       }
@@ -350,14 +382,21 @@ export default function App() {
   };
 
   const cartTotal = cart.reduce((sum, item) => {
-    const finalPrice = item.price * (1 - (item.discount || 0) / 100);
-    return sum + finalPrice * item.quantity;
+    const basePrice = item.price * (1 - (item.discount || 0) / 100);
+    const toppingsPrice = item.selectedToppings.reduce((tSum, tName) => {
+      const topping = toppings.find(t => t.name === tName);
+      const priceVal = topping ? parseInt(topping.price.replace(/\D/g, '')) : 0;
+      return tSum + priceVal;
+    }, 0);
+    return sum + (basePrice + toppingsPrice) * item.quantity;
   }, 0);
 
   const handleCheckout = async (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
+    setIsCheckingOut(true);
     
+    // 1. Lưu vào Firestore
     if (db) {
       try {
         const orderRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'));
@@ -372,14 +411,37 @@ export default function App() {
         console.error("Lỗi khi lưu đơn hàng:", err);
       }
     }
+
+    // 2. Tạo ảnh Bill bằng html2canvas
+    const receiptElement = document.getElementById('receipt-capture');
+    if (receiptElement) {
+      try {
+        // Hiển thị tạm thời để chụp
+        receiptElement.style.display = 'block';
+        const canvas = await html2canvas(receiptElement, { scale: 2, backgroundColor: '#ffffff' });
+        receiptElement.style.display = 'none';
+
+        const image = canvas.toDataURL("image/jpeg", 0.9);
+        
+        // Tải ảnh xuống máy khách
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `HiAn_Bill_${customerInfo.phone}.jpg`;
+        link.click();
+
+        // Copy nội dung text (phòng hờ khách không gửi được ảnh)
+        const orderText = `Chào HiAn, mình muốn chốt đơn hàng này:\n\nTên: ${customerInfo.name}\nSĐT: ${customerInfo.phone}\nĐịa chỉ: ${customerInfo.address}\n${customerInfo.note ? `Ghi chú: ${customerInfo.note}\n` : ''}\nTổng cộng: ${formatPrice(cartTotal)}`;
+        navigator.clipboard.writeText(orderText).catch(e => console.log("Không thể copy clipboard", e));
+
+      } catch (err) {
+        console.error("Lỗi tạo ảnh bill:", err);
+      }
+    }
     
+    setIsCheckingOut(false);
     setCart([]);
-    setCustomerInfo({ name: '', phone: '', address: '', note: '' });
     setOrderSuccess(true);
-    setTimeout(() => {
-      setOrderSuccess(false);
-      setIsCartOpen(false);
-    }, 3000);
+    setIsCartOpen(false);
   };
 
   // AI State
@@ -772,7 +834,7 @@ export default function App() {
                         {item.discount > 0 && <span className="text-slate-400 line-through text-[10px] sm:text-sm mr-2 block -mb-1">{formatPrice(item.price)}</span>}
                         <span className="text-[#5d821a] font-extrabold text-lg sm:text-2xl">{formatPrice(finalPrice)}</span>
                       </div>
-                      <button onClick={() => addToCart(item)} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#f4ead1] text-[#5d821a] flex items-center justify-center hover:bg-[#5d821a] hover:text-white transition-colors">
+                      <button onClick={() => openItemModal(item)} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#f4ead1] text-[#5d821a] flex items-center justify-center hover:bg-[#5d821a] hover:text-white transition-colors">
                         <Plus size={16} className="sm:w-5 sm:h-5" />
                       </button>
                     </div>
@@ -870,6 +932,69 @@ export default function App() {
         </div>
       </footer>
 
+      {/* --- ITEM SELECTION MODAL --- */}
+      {selectedItemForCart && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[2rem] max-w-md w-full overflow-hidden shadow-2xl animate-in zoom-in duration-300 flex flex-col max-h-[90vh]">
+            <div className="relative h-48 sm:h-64 bg-slate-100 flex-shrink-0">
+              <button onClick={() => setSelectedItemForCart(null)} className="absolute top-4 right-4 z-10 bg-black/20 text-white p-2 rounded-full hover:bg-black/40 backdrop-blur-md transition-colors">
+                <X size={20} />
+              </button>
+              {selectedItemForCart.image ? (
+                <img src={selectedItemForCart.image} alt={selectedItemForCart.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-300"><Coffee size={48} /></div>
+              )}
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1">
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{selectedItemForCart.name}</h3>
+              <p className="text-[#5d821a] font-extrabold text-xl mb-6">
+                {formatPrice(selectedItemForCart.price * (1 - (selectedItemForCart.discount || 0)/100))}
+              </p>
+
+              <div className="mb-6">
+                <h4 className="font-bold text-slate-700 mb-3 flex items-center gap-2"><Coffee size={18} /> Thêm Topping</h4>
+                <div className="space-y-2">
+                  {toppings.map(topping => (
+                    <label key={topping.name} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${tempToppings.includes(topping.name) ? 'bg-[#5d821a] border-[#5d821a]' : 'border-slate-300'}`}>
+                          {tempToppings.includes(topping.name) && <ShieldCheck size={14} className="text-white" />}
+                        </div>
+                        <span className="font-medium text-slate-700">{topping.name}</span>
+                      </div>
+                      <span className="text-slate-500 text-sm">+{topping.price}</span>
+                      <input 
+                        type="checkbox" 
+                        className="hidden" 
+                        checked={tempToppings.includes(topping.name)}
+                        onChange={() => toggleTempTopping(topping.name)}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-700 mb-3">Số lượng</h4>
+                <div className="flex items-center justify-center gap-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <button onClick={() => setTempQuantity(Math.max(1, tempQuantity - 1))} className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500 hover:text-red-500 transition-colors"><Minus size={20}/></button>
+                  <span className="text-2xl font-bold text-slate-800 w-8 text-center">{tempQuantity}</span>
+                  <button onClick={() => setTempQuantity(tempQuantity + 1)} className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500 hover:text-[#5d821a] transition-colors"><Plus size={20}/></button>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-white border-t border-slate-100 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] flex-shrink-0">
+              <button onClick={confirmAddToCart} className="w-full py-4 bg-[#5d821a] text-white font-bold rounded-2xl hover:bg-[#4a6815] transition-colors flex justify-center items-center gap-2">
+                <ShoppingCart size={20} /> Thêm vào giỏ hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- CART SIDEBAR --- */}
       {isCartOpen && (
         <div className="fixed inset-0 z-[100] flex justify-end">
@@ -892,16 +1017,29 @@ export default function App() {
                   {/* Danh sách món */}
                   <div className="space-y-4">
                     {cart.map(item => (
-                      <div key={item.id} className="flex gap-4 items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                      <div key={item.cartItemId} className="flex gap-4 items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
                         <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-xl" />
                         <div className="flex-1">
                           <h4 className="font-bold text-slate-800 line-clamp-1">{item.name}</h4>
-                          <p className="text-[#5d821a] font-bold">{formatPrice(item.price * (1 - (item.discount || 0)/100))}</p>
+                          {item.selectedToppings.length > 0 && (
+                            <p className="text-xs text-slate-500 line-clamp-1">
+                              + {item.selectedToppings.join(', ')}
+                            </p>
+                          )}
+                          <p className="text-[#5d821a] font-bold">
+                            {formatPrice(
+                              (item.price * (1 - (item.discount || 0)/100)) + 
+                              item.selectedToppings.reduce((sum, tName) => {
+                                const t = toppings.find(top => top.name === tName);
+                                return sum + (t ? parseInt(t.price.replace(/\D/g, '')) : 0);
+                              }, 0)
+                            )}
+                          </p>
                         </div>
                         <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-lg border border-slate-200">
-                          <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-red-500"><Minus size={16}/></button>
+                          <button onClick={() => updateQuantity(item.cartItemId, -1)} className="text-slate-400 hover:text-red-500"><Minus size={16}/></button>
                           <span className="font-bold w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-[#5d821a]"><Plus size={16}/></button>
+                          <button onClick={() => updateQuantity(item.cartItemId, 1)} className="text-slate-400 hover:text-[#5d821a]"><Plus size={16}/></button>
                         </div>
                       </div>
                     ))}
@@ -925,8 +1063,8 @@ export default function App() {
                   <span className="text-slate-500 font-medium">Tổng cộng:</span>
                   <span className="text-2xl font-extrabold text-[#5d821a]">{formatPrice(cartTotal)}</span>
                 </div>
-                <button onClick={handleCheckout} disabled={!customerInfo.name || !customerInfo.phone || !customerInfo.address} className="w-full py-4 bg-[#5d821a] text-white font-bold rounded-2xl hover:bg-[#4a6815] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
-                  Đặt hàng ngay <Send size={18}/>
+                <button onClick={handleCheckout} disabled={!customerInfo.name || !customerInfo.phone || !customerInfo.address || isCheckingOut} className="w-full py-4 bg-[#5d821a] text-white font-bold rounded-2xl hover:bg-[#4a6815] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+                  {isCheckingOut ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý...</> : <>Đặt hàng ngay <Send size={18}/></>}
                 </button>
               </div>
             )}
@@ -936,17 +1074,88 @@ export default function App() {
 
       {/* Thông báo đặt hàng thành công */}
       {orderSuccess && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-white p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl animate-in zoom-in duration-300">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white p-8 rounded-3xl max-w-md w-full text-center shadow-2xl animate-in zoom-in duration-300">
             <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShieldCheck size={40} />
             </div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">Đặt hàng thành công!</h3>
-            <p className="text-slate-500 mb-6">HiAn đã nhận được đơn hàng của bạn. Chúng mình sẽ liên hệ sớm nhất để xác nhận nhé!</p>
-            <button onClick={() => setOrderSuccess(false)} className="w-full py-3 bg-[#f4ead1] text-[#5d821a] font-bold rounded-xl">Đóng</button>
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">Hóa đơn đã sẵn sàng!</h3>
+            <p className="text-slate-600 mb-6">
+              Ảnh hóa đơn đã được tải xuống máy của bạn.<br/><br/>
+              Để hoàn tất, vui lòng bấm nút bên dưới để mở Messenger và <strong>gửi ảnh hóa đơn</strong> cho HiAn nhé!
+            </p>
+            <div className="space-y-3">
+              <a 
+                href="https://m.me/hianmatcha.dn" 
+                target="_blank" 
+                rel="noreferrer"
+                onClick={() => {
+                  setOrderSuccess(false);
+                  setCustomerInfo({ name: '', phone: '', address: '', note: '' });
+                }}
+                className="w-full py-3 bg-[#0084ff] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#0073e6] transition-colors"
+              >
+                <Send size={20} /> Gửi qua Messenger
+              </a>
+              <button 
+                onClick={() => {
+                  setOrderSuccess(false);
+                  setCustomerInfo({ name: '', phone: '', address: '', note: '' });
+                }} 
+                className="w-full py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Hidden Receipt for html2canvas */}
+      <div id="receipt-capture" style={{ display: 'none' }} className="absolute top-[-9999px] left-[-9999px] w-[400px] bg-white p-8 text-slate-800 font-sans">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-[#5d821a] mb-1">HiAn Matcha & Coco</h2>
+          <p className="text-sm text-slate-500">25 Hưng Hoá 1, Hải Châu, Đà Nẵng</p>
+          <p className="text-sm text-slate-500">Hotline: 0339.229.168</p>
+        </div>
+        <div className="border-t border-b border-dashed border-slate-300 py-4 mb-4 space-y-2 text-sm">
+          <p><strong>Khách hàng:</strong> {customerInfo.name}</p>
+          <p><strong>SĐT:</strong> {customerInfo.phone}</p>
+          <p><strong>Địa chỉ:</strong> {customerInfo.address}</p>
+          {customerInfo.note && <p><strong>Ghi chú:</strong> {customerInfo.note}</p>}
+        </div>
+        <div className="space-y-3 mb-4 text-sm">
+          {cart.map(item => {
+            const basePrice = item.price * (1 - (item.discount || 0) / 100);
+            const toppingsPrice = item.selectedToppings.reduce((tSum, tName) => {
+              const topping = toppings.find(t => t.name === tName);
+              const priceVal = topping ? parseInt(topping.price.replace(/\D/g, '')) : 0;
+              return tSum + priceVal;
+            }, 0);
+            const itemTotal = (basePrice + toppingsPrice) * item.quantity;
+            
+            return (
+              <div key={item.cartItemId} className="flex justify-between">
+                <div className="flex-1">
+                  <p className="font-bold">{item.name}</p>
+                  {item.selectedToppings.length > 0 && (
+                    <p className="text-xs text-slate-500">+ {item.selectedToppings.join(', ')}</p>
+                  )}
+                  <p className="text-slate-500">{item.quantity} x {formatPrice(basePrice + toppingsPrice)}</p>
+                </div>
+                <p className="font-bold">{formatPrice(itemTotal)}</p>
+              </div>
+            );
+          })}
+        </div>
+        <div className="border-t border-slate-800 pt-4 flex justify-between items-center">
+          <span className="font-bold text-lg">TỔNG CỘNG:</span>
+          <span className="font-extrabold text-xl text-[#5d821a]">{formatPrice(cartTotal)}</span>
+        </div>
+        <div className="text-center mt-8 text-sm text-slate-500 italic">
+          Cảm ơn bạn đã chọn HiAn! ❤️
+        </div>
+      </div>
     </div>
   );
 }
