@@ -1112,13 +1112,13 @@ export default function App() {
       )}
 
       {/* Hidden Receipt for html2canvas */}
-      <div id="receipt-capture" style={{ display: 'none' }} className="absolute top-[-9999px] left-[-9999px] w-[400px] bg-white p-8 text-slate-800 font-sans">
+      <div id="receipt-capture" style={{ display: 'none', backgroundColor: '#ffffff', color: '#1e293b' }} className="absolute top-[-9999px] left-[-9999px] w-[400px] p-8 font-sans">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-[#5d821a] mb-1">HiAn Matcha & Coco</h2>
-          <p className="text-sm text-slate-500">25 Hưng Hoá 1, Hải Châu, Đà Nẵng</p>
-          <p className="text-sm text-slate-500">Hotline: 0339.229.168</p>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: '#5d821a' }}>HiAn Matcha & Coco</h2>
+          <p className="text-sm" style={{ color: '#64748b' }}>25 Hưng Hoá 1, Hải Châu, Đà Nẵng</p>
+          <p className="text-sm" style={{ color: '#64748b' }}>Hotline: 0339.229.168</p>
         </div>
-        <div className="border-t border-b border-dashed border-slate-300 py-4 mb-4 space-y-2 text-sm">
+        <div className="py-4 mb-4 space-y-2 text-sm" style={{ borderTop: '1px dashed #cbd5e1', borderBottom: '1px dashed #cbd5e1' }}>
           <p><strong>Khách hàng:</strong> {customerInfo.name}</p>
           <p><strong>SĐT:</strong> {customerInfo.phone}</p>
           <p><strong>Địa chỉ:</strong> {customerInfo.address}</p>
@@ -1139,20 +1139,20 @@ export default function App() {
                 <div className="flex-1">
                   <p className="font-bold">{item.name}</p>
                   {item.selectedToppings.length > 0 && (
-                    <p className="text-xs text-slate-500">+ {item.selectedToppings.join(', ')}</p>
+                    <p className="text-xs" style={{ color: '#64748b' }}>+ {item.selectedToppings.join(', ')}</p>
                   )}
-                  <p className="text-slate-500">{item.quantity} x {formatPrice(basePrice + toppingsPrice)}</p>
+                  <p style={{ color: '#64748b' }}>{item.quantity} x {formatPrice(basePrice + toppingsPrice)}</p>
                 </div>
                 <p className="font-bold">{formatPrice(itemTotal)}</p>
               </div>
             );
           })}
         </div>
-        <div className="border-t border-slate-800 pt-4 flex justify-between items-center">
+        <div className="pt-4 flex justify-between items-center" style={{ borderTop: '1px solid #1e293b' }}>
           <span className="font-bold text-lg">TỔNG CỘNG:</span>
-          <span className="font-extrabold text-xl text-[#5d821a]">{formatPrice(cartTotal)}</span>
+          <span className="font-extrabold text-xl" style={{ color: '#5d821a' }}>{formatPrice(cartTotal)}</span>
         </div>
-        <div className="text-center mt-8 text-sm text-slate-500 italic">
+        <div className="text-center mt-8 text-sm italic" style={{ color: '#64748b' }}>
           Cảm ơn bạn đã chọn HiAn! ❤️
         </div>
       </div>
