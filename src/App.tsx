@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Phone, Instagram, Menu, X, Leaf, Coffee, Star, Sparkles, Loader2, Send, Settings, Save, Trash2, Plus, ArrowLeft, ShieldCheck, Edit, Upload, RefreshCw, ShoppingCart, Minus } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { GoogleGenAI, Type } from '@google/genai';
 
 // --- FIREBASE SETUP ---
 import { initializeApp } from 'firebase/app';
@@ -64,22 +65,6 @@ const BrandLogo = ({ isFooter = false }) => {
       />
     </div>
   );
-};
-
-// --- CẤU HÌNH GEMINI API ---
-const apiKey = process.env.GEMINI_API_KEY || "";
-const fetchWithRetry = async (url, options, retries = 5) => {
-  const delays = [1000, 2000, 4000, 8000, 16000];
-  for (let i = 0; i < retries; i++) {
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise(res => setTimeout(res, delays[i]));
-    }
-  }
 };
 
 // --- CÁC COMPONENT SVG ---
@@ -543,27 +528,25 @@ export default function App() {
       const menuText = menuList.map(item => `${item.id}: ${item.name} (${formatPrice(item.price)}) - ${item.description}`).join(", ");
       const promptText = `Khách đang cảm thấy: "${mood}". \nThực đơn: [${menuText}]. \nHãy chọn 1 ID món phù hợp nhất để xoa dịu/chia vui.`;
       
-      const payload = {
-        contents: [{ parts: [{ text: promptText }] }],
-        systemInstruction: { 
-          parts: [{ text: "Bạn là một nhân viên pha chế (barista) thân thiện, thấu cảm tại quán cafe HiAn Matcha & Coco ở Việt Nam. Hãy đọc tâm trạng của khách, chọn 1 món uống phù hợp nhất dựa trên mô tả. Phản hồi bằng tiếng Việt với giọng điệu dễ thương, gen Z, dùng emoji." }] 
-        },
-        generationConfig: {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: promptText,
+        config: {
+          systemInstruction: "Bạn là một nhân viên pha chế (barista) thân thiện, thấu cảm tại quán cafe HiAn Matcha & Coco ở Việt Nam. Hãy đọc tâm trạng của khách, chọn 1 món uống phù hợp nhất dựa trên mô tả. Phản hồi bằng tiếng Việt với giọng điệu dễ thương, gen Z, dùng emoji.",
           responseMimeType: "application/json",
           responseSchema: {
-            type: "OBJECT",
+            type: Type.OBJECT,
             properties: {
-              drinkId: { type: "STRING" },
-              message: { type: "STRING", description: "Lời nhắn của barista" }
+              drinkId: { type: Type.STRING },
+              message: { type: Type.STRING, description: "Lời nhắn của barista" }
             },
             required: ["drinkId", "message"]
           }
         }
-      };
+      });
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-      const result = await fetchWithRetry(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      const responseText = response.text;
       
       if (responseText) {
         const parsedData = JSON.parse(responseText);
