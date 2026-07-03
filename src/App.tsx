@@ -1522,7 +1522,6 @@ export default function App() {
       {/* --- ITEM CUSTOMIZATION MODAL (UPGRADED: NO SIZE SELECTION) --- */}
       {selectedItemForCart && (() => {
         const isMatchaDrink = selectedItemForCart.category === 'Matcha & Coco' || selectedItemForCart.name.toLowerCase().includes('matcha');
-        const isCoffeeDrink = selectedItemForCart.category === 'Coffee' || selectedItemForCart.name.toLowerCase().includes('cà') || selectedItemForCart.name.toLowerCase().includes('nâu') || selectedItemForCart.name.toLowerCase().includes('xỉu');
         
         return (
           <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -1563,44 +1562,35 @@ export default function App() {
                 </div>
 
                 {/* 2. Chọn Bột Matcha */}
-                <div>
-                  <h4 className="font-bold text-slate-700 mb-2 flex items-center gap-1.5"><Leaf size={16} className="text-[#5d821a]" />{t[lang].milkTitle}</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {['fresh', 'premium'].map(powder => (
-                      <button 
-                        key={powder}
-                        onClick={() => setTempMilk(powder)}
-                        className={`p-2.5 rounded-xl border text-center text-xs font-bold transition-all ${tempMilk === powder ? 'border-[#5d821a] bg-[#f4ead1] text-[#5d821a] shadow-sm' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
-                      >
-                        {getMilkLabel(powder)} {powder === 'premium' && '(+12K)'}
-                      </button>
-                    ))}
+                {isMatchaDrink && (
+                  <div>
+                    <h4 className="font-bold text-slate-700 mb-2 flex items-center gap-1.5"><Leaf size={16} className="text-[#5d821a]" />{t[lang].milkTitle}</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['fresh', 'premium'].map(powder => (
+                        <button 
+                          key={powder}
+                          onClick={() => setTempMilk(powder)}
+                          className={`p-2.5 rounded-xl border text-center text-xs font-bold transition-all ${tempMilk === powder ? 'border-[#5d821a] bg-[#f4ead1] text-[#5d821a] shadow-sm' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                        >
+                          {getMilkLabel(powder)} {powder === 'premium' && '(+12K)'}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* 3. Thêm vị / Độ đậm */}
-                {(isMatchaDrink || isCoffeeDrink) && (
+                {isMatchaDrink && (
                   <div>
                     <h4 className="font-bold text-slate-700 mb-2">{t[lang].extraTitle}</h4>
                     <div className="grid grid-cols-1 gap-3">
-                      {isMatchaDrink && (
-                        <button 
-                          type="button"
-                          onClick={() => toggleTempExtra('bold')}
-                          className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${tempExtras.includes('bold') ? 'border-[#5d821a] bg-[#f4ead1] text-[#5d821a] shadow-sm' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
-                        >
-                          {lang === 'en' ? 'Extra Bold' : 'Gu đậm'} ({tempMilk === 'premium' ? '+10K' : '+6K'})
-                        </button>
-                      )}
-                      {isCoffeeDrink && (
-                        <button 
-                          type="button"
-                          onClick={() => toggleTempExtra('coffee')}
-                          className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${tempExtras.includes('coffee') ? 'border-[#5d821a] bg-[#f4ead1] text-[#5d821a] shadow-sm' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
-                        >
-                          {t[lang].extraCoffee} (+8K)
-                        </button>
-                      )}
+                      <button 
+                        type="button"
+                        onClick={() => toggleTempExtra('bold')}
+                        className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${tempExtras.includes('bold') ? 'border-[#5d821a] bg-[#f4ead1] text-[#5d821a] shadow-sm' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                      >
+                        {lang === 'en' ? 'Extra Bold' : 'Gu đậm'} ({tempMilk === 'premium' ? '+10K' : '+6K'})
+                      </button>
                     </div>
                   </div>
                 )}
