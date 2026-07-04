@@ -150,21 +150,28 @@ const t = {
 const defaultMenuItems = [
   // Matcha & Coco
   { id: "1", name: 'Matcha Latte', nameEn: 'Matcha Latte', price: 30000, image: '/HiAn_MatchaLatte.png', category: 'Matcha & Coco', isBest: false, description: 'Matcha nguyên chất kết hợp cùng sữa tươi thanh trùng mềm mịn.', descriptionEn: 'Pure matcha combined with smooth pasteurized fresh milk.', discount: 0 },
-  { id: "2", name: 'Matcha Cold Whisk', nameEn: 'Matcha Cold Whisk', price: 35000, image: '/Matcha_Cold_whish.png', category: 'Matcha & Coco', isBest: true, description: 'Trà xanh nguyên bản đậm vị, đánh bọt thủ công chuẩn phong cách Nhật Bản.', descriptionEn: 'Authentic bold matcha, hand-whisked in traditional Japanese style.', discount: 0 },
+  { id: "2", name: 'Matcha Cold Whisk', nameEn: 'Matcha Cold Whisk', price: 39000, image: '/Matcha_Cold_whish.png', category: 'Matcha & Coco', isBest: true, description: 'Trà xanh nguyên bản đậm vị, đánh bọt thủ công chuẩn phong cách Nhật Bản.', descriptionEn: 'Authentic bold matcha, hand-whisked in traditional Japanese style.', discount: 0 },
   { id: "3", name: 'Matcha Kem Muối', nameEn: 'Matcha Salted Cream', price: 35000, image: '/Matcha_Kem_Muối.png', category: 'Matcha & Coco', isBest: false, description: 'Matcha nguyên chất đậm đà phủ một lớp kem muối mặn ngọt bồng bềnh.', descriptionEn: 'Rich pure matcha topped with a fluffy layer of sweet & salty cream.', discount: 0 },
   { id: "4", name: 'Coco Matcha Cream', nameEn: 'Coco Matcha Cream', price: 35000, image: '/Coco_Matcha_Cream.png', category: 'Matcha & Coco', isBest: true, description: 'Sự kết hợp hoàn hảo giữa matcha thanh mát và lớp kem dừa béo ngậy.', descriptionEn: 'The perfect combination of refreshing matcha and creamy coconut.', discount: 0 },
   { id: "5", name: 'Sữa Dừa Matcha Cream', nameEn: 'Coconut Milk Matcha Cream', price: 35000, image: '/Sua_Dua_Matcha_Cream.png', category: 'Matcha & Coco', isBest: true, description: 'Sữa dừa thơm lừng hòa quyện cùng lớp kem matcha đặc biệt.', descriptionEn: 'Fragrant coconut milk blended with a special matcha cream topping.', discount: 0 },
   { id: "6", name: 'Sữa Dừa Sương Sáo', nameEn: 'Coconut Milk with Grass Jelly', price: 25000, image: '/Sua_Dua_Suong_Sao.png', category: 'Matcha & Coco', isBest: true, description: 'Sữa dừa béo ngậy kết hợp sương sáo thanh mát dai giòn.', descriptionEn: 'Creamy coconut milk combined with refreshing chewy grass jelly.', discount: 0 },
+  { id: "16", name: 'Matcha Kem Phô Mai', nameEn: 'Matcha Cheese Foam', price: 39000, image: '/Matcha_Kem_Pho_Mai.png', category: 'Matcha & Coco', isBest: false, description: 'Sự hòa quyện tuyệt vời giữa vị thanh mát của Matcha và lớp kem phô mai béo ngậy.', descriptionEn: 'A wonderful blend of refreshing matcha and rich cheese foam topping.', discount: 0 },
+  { id: "17", name: 'Double Matcha', nameEn: 'Double Matcha', price: 39000, image: '/Double_Matcha.png', category: 'Matcha & Coco', isBest: false, description: 'Gấp đôi lượng matcha nguyên chất cho gu đậm đà nguyên bản mạnh mẽ.', descriptionEn: 'Double shot of pure matcha for an extra rich and bold flavor experience.', discount: 0 },
   
   // Coffee
   { id: "7", name: 'Nâu Lắc', nameEn: 'Nau Lac (Shaken Iced Coffee)', price: 20000, image: '/Ca_Nau.png', category: 'Coffee', isBest: false, description: 'Cà phê nâu lắc đá mát lạnh, đậm đà hương vị truyền thống.', descriptionEn: 'Shaken Vietnamese iced milk coffee, bold and traditional flavor.', discount: 0 },
   { id: "8", name: 'Xỉu Muối', nameEn: 'Salted Bac Xiu', price: 29000, image: '/Bac_xiu_muoi.png', category: 'Coffee', isBest: false, description: 'Bạc xỉu truyền thống phá cách với chút kem muối béo mặn.', descriptionEn: 'Traditional Bac Xiu with a modern twist of savory salted cream.', discount: 0 },
   { id: "9", name: 'Cà Muối', nameEn: 'Salted Coffee', price: 25000, image: '/Ca_Muoi.png', category: 'Coffee', isBest: false, description: 'Cà phê đen nguyên bản mạnh mẽ phủ lớp kem muối đặc trưng.', descriptionEn: 'Strong traditional black coffee topped with signature salted cream.', discount: 0 },
-  { id: "10", name: 'Cà Đậu Phộng', nameEn: 'Peanut Coffee', price: 25000, image: '/Ca_Dau_Phong.jpg', category: 'Coffee', isBest: false, description: 'Cà phê rang xay đậm vị kết hợp vị bùi béo đặc trưng của bơ đậu phộng.', descriptionEn: 'Rich ground coffee combined with the buttery taste of peanut butter.', discount: 0 },
+  { id: "10", name: 'Cà Đậu Phộng', nameEn: 'Peanut Coffee', price: 29000, image: '/Ca_Dau_Phong.jpg', category: 'Coffee', isBest: true, description: 'Cà phê rang xay đậm vị kết hợp vị bùi béo đặc trưng của bơ đậu phộng.', descriptionEn: 'Rich ground coffee combined with the buttery taste of peanut butter.', discount: 0 },
 
   // MilkTea & more
   { id: "11", name: 'Trà Ô Long Nhài Chanh Vàng', nameEn: 'Jasmine Oolong Lemon Tea', price: 30000, image: '/Tra_O_Long_Nhail.png', category: 'MilkTea & more', isBest: false, description: 'Trà ô long nhài thơm, chanh vàng tươi mát.', descriptionEn: 'Fragrant jasmine oolong tea with fresh lemon slices.', discount: 0 },
   { id: "12", name: 'Matcha Sữa Yến Mạch', nameEn: 'Oat Milk Matcha', price: 35000, image: '/Matcha_Sua_Yen_Mach.png', category: 'MilkTea & more', isBest: false, description: 'Matcha sữa yến mạch béo bùi thanh nhẹ.', descriptionEn: 'Creamy and nutty oat milk matcha latte.', discount: 0 },
+  { id: "18", name: 'Lục Trà Sữa Trân Châu', nameEn: 'Jasmine Milk Tea with Pearls', price: 25000, image: '/Luc_Tra_Sua_Tran_Chau.png', category: 'MilkTea & more', isBest: false, description: 'Lục trà lài thơm mát kết hợp sữa thơm béo và trân châu trắng dai giòn.', descriptionEn: 'Fragrant jasmine milk tea combined with chewy white pearls.', discount: 0 },
+  { id: "19", name: 'Lục Trà Sữa Xoài Trân Châu', nameEn: 'Mango Jasmine Milk Tea with Pearls', price: 30000, image: '/Luc_Tra_Sua_Xoai_Tran_Chau.png', category: 'MilkTea & more', isBest: false, description: 'Lục trà lài hòa quyện mứt xoài chín ngọt ngào và trân châu trắng.', descriptionEn: 'Jasmine milk tea infused with sweet mango jam and white pearls.', discount: 0 },
+  { id: "20", name: 'Lục Trà Sữa Kem Phô Mai', nameEn: 'Jasmine Milk Tea with Cheese Foam', price: 35000, image: '/Luc_Tra_Sua_Kem_Pho_Mai.png', category: 'MilkTea & more', isBest: false, description: 'Lục trà sữa lài đậm vị phủ lớp kem phô mai bồng bềnh béo ngậy.', descriptionEn: 'Rich jasmine milk tea topped with a fluffy layer of creamy cheese foam.', discount: 0 },
+  { id: "21", name: 'Sữa Dâu Sấy Kem Mặn', nameEn: 'Strawberry Milk with Salted Cream', price: 30000, image: '/Sua_Dau_Say_Kem_Man.png', category: 'MilkTea & more', isBest: false, description: 'Sữa tươi dâu ngọt ngào hòa quyện cùng dâu sấy và lớp kem muối béo mặn.', descriptionEn: 'Sweet strawberry milk combined with dried strawberries and savory salted cream.', discount: 0 },
+  { id: "22", name: 'Lài Si Mơ', nameEn: 'Jasmine Apricot Tea', price: 25000, image: '/Lai_Si_Mo.png', category: 'MilkTea & more', isBest: false, description: 'Trà lài thanh nhẹ kết hợp mứt mơ chua ngọt thanh mát giải nhiệt mùa hè.', descriptionEn: 'Light jasmine tea blended with sweet & sour apricot jam for a refreshing summer drink.', discount: 0 },
   { id: "13", name: 'Croffle Quế Mật Ong', nameEn: 'Honey Cinnamon Croffle', price: 25000, image: '/Croffle_Que_Mat_Ong.png', category: 'MilkTea & more', isBest: false, description: 'Bánh croffle nướng giòn rưới mật ong thơm quế.', descriptionEn: 'Freshly baked crispy croffle drizzled with honey and cinnamon sugar.', discount: 0 },
   { id: "14", name: 'Croffle Chà Bông Trứng Muối', nameEn: 'Salted Egg Pork Floss Croffle', price: 29000, image: '/Croffle_Cha_Bong.png', category: 'MilkTea & more', isBest: false, description: 'Bánh croffle nướng phủ chà bông trứng muối đậm đà.', descriptionEn: 'Savory croffle topped with shredded pork floss and rich salted egg sauce.', discount: 0 },
   { id: "15", name: 'Croissant Hạnh Nhân', nameEn: 'Almond Croissant', price: 28000, image: '/Croissant_Hanh_Nhan.png', category: 'MilkTea & more', isBest: false, description: 'Bánh croissant ngập hạnh nhân thơm bùi giòn rụm.', descriptionEn: 'Crispy flaky croissant filled and topped with sweet almond cream.', discount: 0 },
@@ -174,6 +181,7 @@ const toppings = [
   { name: 'Sương sáo', nameEn: 'Grass Jelly', price: 3000 },
   { name: 'Trân châu trắng', nameEn: 'White Pearls', price: 5000 },
   { name: 'Kem muối', nameEn: 'Salted Cream', price: 10000 },
+  { name: 'Dâu sấy', nameEn: 'Dried Strawberries', price: 6000 },
 ];
 
 const formatPrice = (price) => `${(price / 1000)}k`;
@@ -528,7 +536,7 @@ export default function App() {
     const extrasPrice = extras.reduce((sum, e) => {
       if (e === 'bold') {
         const isKobashi = milk === 'premium' || milk === 'kobashi';
-        return sum + (isKobashi ? 10000 : 6000);
+        return sum + (isKobashi ? 10000 : 5000);
       }
       if (e === 'coffee') return sum + 8000;
       return sum;
@@ -1603,7 +1611,7 @@ export default function App() {
                         onClick={() => toggleTempExtra('bold')}
                         className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${tempExtras.includes('bold') ? 'border-[#5d821a] bg-[#f4ead1] text-[#5d821a] shadow-sm' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                       >
-                        {lang === 'en' ? 'Extra Bold' : 'Gu đậm'} ({tempMilk === 'premium' ? '+10K' : '+6K'})
+                        {lang === 'en' ? 'Extra Bold' : 'Gu đậm'} ({tempMilk === 'premium' ? '+10K' : '+5K'})
                       </button>
                     </div>
                   </div>
