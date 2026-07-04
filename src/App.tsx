@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Phone, Instagram, Menu, X, Leaf, Coffee, Star, Sparkles, Loader2, Send, Settings, Save, Trash2, Plus, ArrowLeft, ShieldCheck, Edit, Upload, RefreshCw, ShoppingCart, Minus, Globe } from 'lucide-react';
+import { MapPin, Phone, Instagram, Facebook, Menu, X, Leaf, Coffee, Star, Sparkles, Loader2, Send, Settings, Save, Trash2, Plus, ArrowLeft, ShieldCheck, Edit, Upload, RefreshCw, ShoppingCart, Minus, Globe } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { GoogleGenAI, Type } from '@google/genai';
 
@@ -993,7 +993,7 @@ export default function App() {
                   onClick={() => handleNavClick(navItem)}
                   className="block w-full text-left px-3 py-3 rounded-xl text-slate-600 hover:bg-[#f4ead1] hover:text-[#5d821a] font-semibold"
                 >
-                  {navItem}
+                  {navItem === 'HiAn là...' ? (lang === 'vi' ? 'HiAn là...' : 'About HiAn') : navItem}
                 </button>
               ))}
             </div>
@@ -1023,7 +1023,7 @@ export default function App() {
               HOMEMADE MATCHA & COCO
             </h1>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-[#8c6b00] font-['Patrick_Hand'] mb-6">
-              Đặc chế tại nhà
+              {lang === 'vi' ? 'Đặc chế tại nhà' : 'Homemade Specialty'}
             </h2>
             <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-semibold">
               {lang === 'vi' 
@@ -1140,9 +1140,9 @@ export default function App() {
       <section id="about" className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 bg-[#f4ead1] text-[#5d821a] px-4 py-2 rounded-full font-bold text-sm mb-6">
-            <Leaf size={16} /> <span>HiAn là...</span>
+            <Leaf size={16} /> <span>{lang === 'vi' ? 'HiAn là...' : 'About HiAn'}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-6">Chào mừng bạn đến với HiAn Matcha & Coco</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-6">{lang === 'vi' ? 'Chào mừng bạn đến với HiAn Matcha & Coco' : 'Welcome to HiAn Matcha & Coco'}</h2>
           <p className="text-slate-600 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
             {lang === 'vi'
               ? 'Chúng mình là một tiệm nhỏ ấm cúng chuyên về các thức uống được làm từ 100% bột Matcha Nhật Bản nguyên chất phối hợp cùng cốt dừa tươi ngọt lành. Không dùng hóa chất, siro tạo vị nhân tạo - Cam kết chuẩn vị nhà làm tự nhiên tốt sức khỏe.'
@@ -1166,17 +1166,17 @@ export default function App() {
       </section>
 
       {/* --- SCROLL-DRIVEN MATCHA CUP FILLING ANIMATION (REPLACING AI BARISTA) --- */}
-      <section ref={animationSectionRef} id="about-matcha" className="py-24 bg-[#fcfaf5] border-t border-b border-[#f4ead1] flex flex-col items-center justify-center relative overflow-hidden">
+      <section ref={animationSectionRef} id="about-matcha" className="py-12 sm:py-24 bg-[#fcfaf5] border-t border-b border-[#f4ead1] flex flex-col items-center justify-center relative overflow-hidden">
         <div className="absolute top-0 right-0 text-[#c3d9a1] w-64 h-64 opacity-20 -mr-20 -mt-20"><BlobShape1 className="w-full h-full" /></div>
         <div className="absolute bottom-0 left-0 text-[#ffd966] w-48 h-48 opacity-20 -ml-20 -mb-20"><BlobShape2 className="w-full h-full" /></div>
         
-        <div className="max-w-4xl mx-auto text-center px-4 mb-12 relative z-10">
+        <div className="max-w-4xl mx-auto text-center px-4 mb-6 sm:mb-12 relative z-10">
           <h2 className="text-3xl sm:text-4xl font-black text-[#5d821a] font-['Patrick_Hand'] tracking-wider mb-3">
             {lang === 'vi' ? 'Ly Matcha Đong Đầy Tình Yêu' : 'Matcha Filled With Love'}
           </h2>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-12 max-w-3xl w-full px-6 relative z-10">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 sm:gap-12 max-w-3xl w-full px-6 relative z-10">
           {/* Percentage Counter */}
           <div className="text-center font-['Patrick_Hand'] flex flex-col items-center md:w-48">
             <span className="text-7xl sm:text-9xl font-black text-[#5d821a] tracking-tighter select-none transition-all duration-100">
@@ -1186,7 +1186,7 @@ export default function App() {
           </div>
 
           {/* SVG Cup Animation */}
-          <div className="relative w-64 h-80 flex items-center justify-center bg-white border border-[#f4ead1] rounded-[2.5rem] p-6 shadow-md transform rotate-1">
+          <div className="relative w-48 h-64 sm:w-64 sm:h-80 flex items-center justify-center bg-white border border-[#f4ead1] rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 shadow-md transform rotate-1">
             <svg className="w-full h-full" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
               {/* Cup background */}
               <path d="M30 10 L 70 10 L 63 110 L 37 110 Z" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
@@ -1236,15 +1236,15 @@ export default function App() {
           </div>
 
           {/* Narrative steps next to cup */}
-          <div className="flex-1 font-['Patrick_Hand'] text-[#8c6b00] space-y-5">
+          <div className="flex-1 font-['Patrick_Hand'] text-[#8c6b00] space-y-3 sm:space-y-5">
             <div className={`transition-all duration-300 ${fillPercent >= 10 ? 'opacity-100 translate-x-0' : 'opacity-30 -translate-x-2'}`}>
-              <p className="font-black text-xl">🌱 {lang === 'vi' ? '0% - Bột Matcha Nhật' : '0% - Japanese Matcha'}</p>
+              <p className="font-black text-xl">🌱 {lang === 'vi' ? '100% - Bột Matcha Nhật' : '100% - Japanese Matcha'}</p>
               <p className="text-xs text-slate-500 font-medium">
                 {lang === 'vi' ? 'Lớp bột Matcha Nhật Bản nguyên chất hảo hạng.' : 'Pure Japanese Matcha powder of premium quality.'}
               </p>
             </div>
             <div className={`transition-all duration-300 ${fillPercent >= 50 ? 'opacity-100 translate-x-0' : 'opacity-30 -translate-x-2'}`}>
-              <p className="font-black text-xl">🥣 50% - Đánh Bọt Chasen</p>
+              <p className="font-black text-xl">🥣 {lang === 'vi' ? '50% - Đánh Bọt Chasen' : '50% - Hand-whisked Chasen'}</p>
               <p className="text-xs text-slate-500 font-medium">
                 {lang === 'vi' ? 'Được đánh bọt chasen thủ công tỉ mỉ bằng chổi tre truyền thống.' : 'Carefully whisked by hand using a traditional bamboo chasen.'}
               </p>
@@ -1464,9 +1464,23 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="flex space-x-4 mt-8">
-                <a href="#" className="bg-white/10 text-white p-3 rounded-full hover:bg-white hover:text-[#5d821a] transition-all"><Instagram size={20} /></a>
-                <a href="#" className="bg-white/10 text-white p-3 rounded-full hover:bg-white hover:text-[#5d821a] transition-all font-bold text-lg flex items-center justify-center w-[44px] h-[44px]">f</a>
+              <div className="mt-8">
+                <p className="text-xs font-bold text-[#c3d9a1] mb-3 uppercase tracking-wider">
+                  {lang === 'vi' ? 'Follow hành trình của tụi mình tại:' : 'Follow our journey at:'}
+                </p>
+                <div className="flex space-x-4">
+                  <a href="https://www.facebook.com/hianmatcha.dn" target="_blank" rel="noopener noreferrer" className="bg-white/10 text-white p-3 rounded-full hover:bg-white hover:text-[#5d821a] transition-all flex items-center justify-center w-11 h-11">
+                    <Facebook size={20} />
+                  </a>
+                  <a href="https://www.instagram.com/hianmatcha.dn" target="_blank" rel="noopener noreferrer" className="bg-white/10 text-white p-3 rounded-full hover:bg-white hover:text-[#5d821a] transition-all flex items-center justify-center w-11 h-11">
+                    <Instagram size={20} />
+                  </a>
+                  <a href="https://www.tiktok.com/@hianmatcha.dn" target="_blank" rel="noopener noreferrer" className="bg-white/10 text-white p-3 rounded-full hover:bg-white hover:text-[#5d821a] transition-all flex items-center justify-center w-11 h-11">
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .8.11V9.4a6.27 6.27 0 0 0-3.11-.8 6.34 6.34 0 0 0-6.34 6.34 6.18 6.18 0 0 0 6.18 6.18 6.34 6.34 0 0 0 6.34-6.34V5.7a8.21 8.21 0 0 0 5.92 5.04V7.28a4.78 4.78 0 0 1-2.83-.59z" />
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
 
