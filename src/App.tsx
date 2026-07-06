@@ -2040,14 +2040,16 @@ export default function App() {
       </div>
       
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-[250] bg-slate-900/95 text-white py-3.5 px-6 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700/50 animate-in slide-in-from-bottom duration-300">
-          <div className="bg-[#5d821a] p-1.5 rounded-full text-white">
-            <ShoppingCart size={16} />
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:top-auto md:bottom-6 md:right-6 w-[90%] md:w-auto max-w-sm md:max-w-none z-[250] bg-slate-900/95 text-white py-3.5 px-6 rounded-2xl shadow-2xl flex items-center justify-between gap-3 border border-slate-700/50 animate-in slide-in-from-top md:slide-in-from-bottom duration-300">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#5d821a] p-1.5 rounded-full text-white flex-shrink-0">
+              <ShoppingCart size={16} />
+            </div>
+            <span className="font-semibold text-sm">{toastMessage}</span>
           </div>
-          <span className="font-semibold text-sm">{toastMessage}</span>
           <button 
             onClick={() => setToastMessage(null)} 
-            className="text-slate-400 hover:text-white transition-colors ml-2"
+            className="text-slate-400 hover:text-white transition-colors ml-2 flex-shrink-0"
           >
             <X size={16} />
           </button>
