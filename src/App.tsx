@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 
 // --- FIREBASE SETUP ---
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -169,6 +169,7 @@ const defaultMenuItems = [
   { id: "20", name: 'Lục Trà Sữa Kem Phô Mai', nameEn: 'Jasmine Milk Tea with Cheese Foam', price: 35000, image: '/Luc_Tra_Sua_Kem_Pho_Mai.png', category: 'MilkTea & more', isBest: false, description: 'Lục trà sữa lài đậm vị phủ lớp kem phô mai bồng bềnh béo ngậy.', descriptionEn: 'Rich jasmine milk tea topped with a fluffy layer of creamy cheese foam.', discount: 0 },
   { id: "21", name: 'Sữa Dâu Sấy Kem Mặn', nameEn: 'Strawberry Milk with Salted Cream', price: 30000, image: '/Sua_Dau_Say_Kem_Man.png', category: 'MilkTea & more', isBest: false, description: 'Sữa tươi dâu ngọt ngào hòa quyện cùng dâu sấy và lớp kem muối béo mặn.', descriptionEn: 'Sweet strawberry milk combined with dried strawberries and savory salted cream.', discount: 0 },
   { id: "22", name: 'Lài Si Mơ', nameEn: 'Jasmine Apricot Tea', price: 25000, image: '/Lai_Si_Mo.png', category: 'MilkTea & more', isBest: false, description: 'Trà lài thanh nhẹ kết hợp mứt mơ chua ngọt thanh mát giải nhiệt mùa hè.', descriptionEn: 'Light jasmine tea blended with sweet & sour apricot jam for a refreshing summer drink.', discount: 0 },
+  { id: "23", name: 'Trà Dâu Tằm', nameEn: 'Mulberry Tea', price: 27000, image: '/Tra_Dau_Tam.png', category: 'MilkTea & more', isBest: false, description: 'Trà dâu tằm chua ngọt thơm mát thanh nhiệt.', descriptionEn: 'Sweet and sour mulberry tea, refreshing for summer days.', discount: 0 },
 ];
 
 const toppings = [
@@ -847,14 +848,22 @@ export default function App() {
     if (!user) {
       const handleLogin = (e) => {
         e.preventDefault();
-        if (adminId === 'HianMatcha2026@' && adminPass === 'HianMatcha2026@123') {
-          if (auth) {
-            signInAnonymously(auth).catch(console.error);
-          } else {
-            setUser({ uid: 'local-admin' });
-          }
+        if (auth) {
+          const email = adminId === 'HianMatcha2026@' ? 'hianmatcha@gmail.com' : (adminId.includes('@') ? adminId : `${adminId}@hian.vn`);
+          signInWithEmailAndPassword(auth, email, adminPass)
+            .then(() => {
+              setLoginError('');
+            })
+            .catch((err) => {
+              console.error(err);
+              setLoginError('Sai ID hoặc mật khẩu!');
+            });
         } else {
-          setLoginError('Sai ID hoặc mật khẩu!');
+          if (adminId === 'HianMatcha2026@' && adminPass === 'HianMatcha2026@123') {
+            setUser({ uid: 'local-admin' });
+          } else {
+            setLoginError('Sai ID hoặc mật khẩu!');
+          }
         }
       };
 

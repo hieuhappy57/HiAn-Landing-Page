@@ -8,10 +8,9 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      // In a real app, this should check a secure role claim or an admin collection.
-      // For this prototype, we allow any authenticated user to act as admin 
-      // since the app uses anonymous auth for everyone.
-      return isAuthenticated();
+      // Secure check: verify that the user is authenticated and their email belongs to the admin list
+      return isAuthenticated() && 
+             (request.auth.token.email == 'hianmatcha@gmail.com' || request.auth.token.email == 'admin@hian.vn');
     }
 
     function isValidMenuItem(data) {
