@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Phone, Instagram, Facebook, Menu, X, Leaf, Coffee, Star, Sparkles, Loader2, Send, Settings, Save, Trash2, Plus, ArrowLeft, ShieldCheck, Edit, Upload, RefreshCw, ShoppingCart, Minus, Globe } from 'lucide-react';
 import html2canvas from 'html2canvas';
-import { GoogleGenAI, Type } from '@google/genai';
 
 // --- FIREBASE SETUP ---
 import { initializeApp } from 'firebase/app';
@@ -663,6 +662,24 @@ export default function App() {
       }
     }
 
+    // 2. Send email notification via Vercel Backend Function
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          orderText: generateOrderText(false),
+          customer: customerInfo,
+          items: cart,
+          total: cartTotal
+        })
+      });
+    } catch (err) {
+      console.error("Lỗi gửi email báo đơn hàng:", err);
+    }
+
     const finalOrderTxt = generateOrderText(true);
     setFinalOrderText(finalOrderTxt);
     await navigator.clipboard.writeText(finalOrderTxt).catch(e => console.log("Không thể copy clipboard", e));
@@ -789,35 +806,23 @@ export default function App() {
     setAiSuggestion(null);
 
     try {
-      const menuText = menuList.map(item => `${item.id}: ${item.name} (${formatPrice(item.price)}) - ${item.description}`).join(", ");
-      const promptText = `Khách đang cảm thấy: "${mood}". \nThực đơn: [${menuText}]. \nHãy chọn 1 ID món phù hợp nhất để giới thiệu.`;
-      
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents: promptText,
-        config: {
-          systemInstruction: "Bạn là một nhân viên pha chế (barista) thân thiện, thấu cảm tại quán cafe HiAn Matcha & Coco ở Đà Nẵng, Việt Nam. Hãy đọc tâm trạng của khách, chọn 1 món uống phù hợp nhất dựa trên mô tả. Phản hồi bằng ngôn ngữ của khách nhập (Tiếng Việt hoặc Tiếng Anh) với giọng điệu dễ thương, gen Z, dùng emoji.",
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              drinkId: { type: Type.STRING },
-              message: { type: Type.STRING, description: "Lời nhắn của barista" }
-            },
-            required: ["drinkId", "message"]
-          }
-        }
+      const response = await fetch('/api/suggest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ mood, menuList })
       });
-
-      const responseText = response.text;
       
-      if (responseText) {
-        const parsedData = JSON.parse(responseText);
-        const recommendedDrink = menuList.find(item => item.id === parsedData.drinkId);
-        if (recommendedDrink) setAiSuggestion({ drink: recommendedDrink, message: parsedData.message });
-        else throw new Error("Không tìm thấy món uống phù hợp.");
-      } else throw new Error("Không nhận được phản hồi từ AI.");
+      if (!response.ok) throw new Error("Failed to get suggestion from server");
+      const parsedData = await response.json();
+      
+      const recommendedDrink = menuList.find(item => item.id === parsedData.drinkId);
+      if (recommendedDrink) {
+        setAiSuggestion({ drink: recommendedDrink, message: parsedData.message });
+      } else {
+        throw new Error("Không tìm thấy món uống phù hợp.");
+      }
     } catch (err) {
       console.error(err);
       setAiError(lang === 'vi' ? "Xin lỗi bạn nha, AI đang pha trà nên chưa trả lời ngay được. Bạn chọn menu bên dưới nhé! 🍵" : "Sorry, our AI barista is busy making matcha right now. Please choose from the menu! 🍵");
@@ -859,11 +864,7 @@ export default function App() {
               setLoginError('Sai ID hoặc mật khẩu!');
             });
         } else {
-          if (adminId === 'HianMatcha2026@' && adminPass === 'HianMatcha2026@123') {
-            setUser({ uid: 'local-admin' });
-          } else {
-            setLoginError('Sai ID hoặc mật khẩu!');
-          }
+          setLoginError('Hệ thống chưa được cấu hình xác thực Firebase!');
         }
       };
 
