@@ -861,7 +861,15 @@ export default function App() {
             })
             .catch((err) => {
               console.error(err);
-              setLoginError('Sai ID hoặc mật khẩu!');
+              let msg = 'Sai ID hoặc mật khẩu!';
+              if (err.code === 'auth/operation-not-allowed') {
+                msg = 'Lỗi: Nhà cung cấp dịch vụ Email/Password chưa được kích hoạt trong Firebase Console (vào mục Authentication -> Sign-in method -> chọn kích hoạt Email/Password)!';
+              } else if (err.code === 'auth/user-disabled') {
+                msg = 'Lỗi: Tài khoản này đã bị khóa.';
+              } else if (err.code) {
+                msg = `Lỗi: ${err.message} (${err.code})`;
+              }
+              setLoginError(msg);
             });
         } else {
           setLoginError('Hệ thống chưa được cấu hình xác thực Firebase!');

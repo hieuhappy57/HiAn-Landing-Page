@@ -143,7 +143,15 @@ export default function Cms() {
       await signInWithEmailAndPassword(auth, emailInput, passwordInput);
     } catch (err: any) {
       console.error(err);
-      setLoginError("Email hoặc mật khẩu không chính xác!");
+      let msg = 'Email hoặc mật khẩu không chính xác!';
+      if (err.code === 'auth/operation-not-allowed') {
+        msg = 'Lỗi: Nhà cung cấp dịch vụ Email/Password chưa được kích hoạt trong Firebase Console (vào mục Authentication -> Sign-in method -> chọn kích hoạt Email/Password)!';
+      } else if (err.code === 'auth/user-disabled') {
+        msg = 'Lỗi: Tài khoản này đã bị khóa.';
+      } else if (err.code) {
+        msg = `Lỗi: ${err.message} (${err.code})`;
+      }
+      setLoginError(msg);
     } finally {
       setIsLoading(false);
     }
